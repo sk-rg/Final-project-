@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SENTRA // Incident Board — Interactive Web Security Sandbox</title>
+  <meta name="description" content="Three interactive security labs. Run the attack, read the line that causes it, apply the fix, retest.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%F0%9F%93%8C%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&family=Special+Elite&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <main class="board" id="board">
+    <svg class="yarn" id="yarn" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"></svg>
+
+    <div class="board-intro">
+      <h1>Three incidents are open.</h1>
+      <p>Each case is a real kind of bug inside a small, fake website. Run the attack, read the line that causes it, apply the fix, then retest with the same attack.</p>
+    </div>
+
+    <div class="board-grid">
+
+      <!-- Project protocol -->
+      <section class="card protocol" id="card-protocol" style="--rot:-2deg" aria-labelledby="protocol-title">
+        <span class="pin" aria-hidden="true"></span>
+        <div class="card-meta">
+          <h2 id="protocol-title" class="type">Project protocol</h2>
+          <span class="sev" style="background:#e7e5e4;color:#44403c">SOP-04</span>
+        </div>
+        <ol>
+          <li><b>1. detect</b>: run the attack</li>
+          <li><b>2. analyze</b>: read the line</li>
+          <li><b>3. fix</b>: switch to Fixed</li>
+          <li><b>4. retest</b>: same attack, blocked</li>
+        </ol>
+        <div class="stamp-row">
+          <span>AMMAN 42</span>
+          <span style="color:#b91c1c">CLASSIFIED</span>
+        </div>
+      </section>
+
+      <!-- Case 101 -->
+      <a class="card case" id="card-1" href="lab1-file-upload.html" style="--rot:1deg" aria-label="Case 101: Profile Dashboard, unrestricted file upload. Open case file.">
+        <span class="pin" aria-hidden="true"></span>
+        <div class="card-meta"><span class="case-no">CASE 101</span><span class="sev high">HIGH</span></div>
+        <div class="photo" aria-hidden="true">
+          <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(34 34) rotate(-3)">
+              <rect width="170" height="124" rx="8" fill="#e9e3d3" stroke="#0c0a09" stroke-width="2"/>
+              <rect width="170" height="20" rx="8" fill="#57534e"/>
+              <circle cx="40" cy="62" r="20" fill="#a8a29e"/>
+              <rect x="72" y="50" width="78" height="7" fill="#c7bfae"/><rect x="72" y="66" width="52" height="7" fill="#c7bfae"/>
+              <rect x="22" y="96" width="96" height="16" rx="8" fill="#f5f0e6" stroke="#0c0a09" stroke-width="2"/>
+            </g>
+            <g transform="translate(206 62) rotate(8)">
+              <rect width="94" height="112" rx="8" fill="#f5f0e6" stroke="#0c0a09" stroke-width="2"/>
+              <text x="47" y="40" text-anchor="middle" font-family="monospace" font-size="12" font-weight="700" fill="#44403c">photo.jpg</text>
+              <line x1="10" y1="48" x2="84" y2="48" stroke="#b91c1c" stroke-width="3"/>
+              <text x="47" y="84" text-anchor="middle" font-family="monospace" font-size="18" font-weight="700" fill="#b91c1c" transform="rotate(-6 47 84)">SCRIPT</text>
+            </g>
+          </svg>
+        </div>
+        <h2>Profile Dashboard</h2>
+        <p class="scenario">Profile photo upload</p>
+        <div class="bug-chip">Unrestricted file upload</div>
+        <div class="card-foot">
+          <span class="stamp open" id="stamp-1">Open</span>
+          <span class="card-cta">Open case file</span>
+        </div>
+      </a>
+
+      <!-- Case 102 -->
+      <a class="card case" id="card-2" href="lab2-supply-chain.html" style="--rot:-1deg" aria-label="Case 102: Wanderly Travel, supply chain attack. Open case file.">
+        <span class="pin" aria-hidden="true"></span>
+        <div class="card-meta"><span class="case-no">CASE 102</span><span class="sev critical">CRITICAL</span></div>
+        <div class="photo" aria-hidden="true">
+          <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(36 40) rotate(-16 100 50)" fill="#e7dfcf" stroke="#0c0a09" stroke-width="2">
+              <path d="M10 52 Q10 40 40 40 L170 40 Q200 44 206 52 Q200 60 170 62 L40 64 Q10 64 10 52Z"/>
+              <path d="M82 40 L122 2 L138 2 L118 40Z"/>
+              <path d="M82 64 L122 102 L138 102 L118 64Z"/>
+              <path d="M18 42 L8 18 L28 18 L42 40Z"/>
+            </g>
+            <g transform="translate(186 112) rotate(7)">
+              <path d="M0 16 L16 0 H100 V56 H16Z" fill="#f5f0e6" stroke="#0c0a09" stroke-width="2"/>
+              <circle cx="17" cy="28" r="4" fill="#12100e"/>
+              <text x="62" y="24" text-anchor="middle" font-family="monospace" font-size="12" fill="#78716c">1 copy</text>
+              <line x1="42" y1="19" x2="82" y2="19" stroke="#78716c" stroke-width="2"/>
+              <text x="62" y="46" text-anchor="middle" font-family="monospace" font-size="14" font-weight="700" fill="#b91c1c">2 copies</text>
+            </g>
+          </svg>
+        </div>
+        <h2>Wanderly Travel</h2>
+        <p class="scenario">Booking website</p>
+        <div class="bug-chip">Supply chain attack</div>
+        <div class="card-foot">
+          <span class="stamp open" id="stamp-2">Open</span>
+          <span class="card-cta">Open case file</span>
+        </div>
+      </a>
+
+      <!-- Case 103 -->
+      <a class="card case" id="card-3" href="lab3-redos.html" style="--rot:2deg" aria-label="Case 103: CitizenHub, regular expression denial of service. Open case file.">
+        <span class="pin" aria-hidden="true"></span>
+        <div class="card-meta"><span class="case-no">CASE 103</span><span class="sev medium">MEDIUM</span></div>
+        <div class="photo" aria-hidden="true">
+          <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(30 44) rotate(-4)">
+              <rect width="180" height="112" rx="9" fill="#e9e3d3" stroke="#0c0a09" stroke-width="2"/>
+              <path d="M0 9 Q0 0 9 0 H171 Q180 0 180 9 V24 H0Z" fill="#166534"/>
+              <text x="12" y="17" font-size="10" font-family="monospace" fill="#fff" font-weight="700">DRIVING LICENCE</text>
+              <rect x="12" y="36" width="46" height="58" fill="#a8a29e"/>
+              <circle cx="35" cy="56" r="10" fill="#78716c"/>
+              <path d="M17 94 Q35 68 53 94Z" fill="#78716c"/>
+              <text x="70" y="50" font-size="9" fill="#57534e" font-family="monospace">No.</text>
+              <text x="70" y="68" font-size="12" font-weight="700" font-family="monospace" fill="#1c1917">AAAAAAAAAA!</text>
+              <rect x="70" y="78" width="94" height="5" fill="#c7bfae"/>
+              <rect x="70" y="88" width="64" height="5" fill="#c7bfae"/>
+            </g>
+            <g transform="translate(206 92)">
+              <rect x="26" y="-8" width="18" height="10" fill="#57534e" stroke="#0c0a09" stroke-width="2"/>
+              <circle cx="35" cy="38" r="40" fill="#f5f0e6" stroke="#0c0a09" stroke-width="3"/>
+              <circle cx="35" cy="38" r="3" fill="#0c0a09"/>
+              <line x1="35" y1="38" x2="35" y2="12" stroke="#0c0a09" stroke-width="3"/>
+              <line x1="35" y1="38" x2="56" y2="48" stroke="#b91c1c" stroke-width="3"/>
+              <text x="35" y="72" text-anchor="middle" font-family="monospace" font-size="11" font-weight="700" fill="#b91c1c">+10.7s</text>
+            </g>
+          </svg>
+        </div>
+        <h2>CitizenHub</h2>
+        <p class="scenario">Driving licence lookup</p>
+        <div class="bug-chip">ReDoS (regex denial of service)</div>
+        <div class="card-foot">
+          <span class="stamp open" id="stamp-3">Open</span>
+          <span class="card-cta">Open case file</span>
+        </div>
+      </a>
+
+      <!-- Final report -->
+      <section class="card report" id="card-report" style="--rot:-1.5deg" aria-labelledby="report-title">
+        <span class="pin" aria-hidden="true"></span>
+        <div class="card-meta">
+          <h2 id="report-title" class="type">Final report</h2>
+          <span class="sev" id="report-tag" style="background:#e7e5e4;color:#44403c">LOCKED</span>
+        </div>
+        <div id="report-locked">
+          <p class="locked-note">Close all three cases to read the one-line briefs.</p>
+          <div class="redacted" style="width:92%"></div>
+          <div class="redacted" style="width:74%"></div>
+          <div class="redacted" style="width:85%"></div>
+        </div>
+        <ol id="report-open" hidden>
+          <li><strong>Profile Dashboard.</strong> The server trusted the file name, so a script renamed photo.jpg got in. Now it reads the file&rsquo;s real first bytes before accepting it.</li>
+          <li><strong>Wanderly Travel.</strong> A tampered booking library secretly copied what visitors typed. Now the version is pinned and the browser checks an integrity hash.</li>
+          <li><strong>CitizenHub.</strong> A nested regex let one short input freeze the lookup. Now the pattern has no nested repeat and the length is capped.</li>
+        </ol>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="js/common.js"></script>
+  <script src="js/board.js"></script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Case 103: CitizenHub, ReDoS · SENTRA Incident Board</title>
+  <meta name="description" content="Interactive lab: one short input freezes a licence lookup because of a regular expression with a repeat inside a repeat.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%F0%9F%93%8C%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&family=Special+Elite&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-mode="vulnerable">
+
+  <main class="file-wrap">
+    <div class="folder">
+      <div class="folder-tab"><a href="index.html">&larr; Incident board</a></div>
+
+      <article class="sheet">
+        <span id="sheet-stamp" class="stamp sheet-stamp open">Open</span>
+
+        <div class="chips">
+          <span class="chip">OWASP: Regular expression Denial of Service (input validation)</span>
+          <span class="chip cwe">CWE-1333 Inefficient Regular Expression Complexity</span>
+        </div>
+        <h1>Case 103: CitizenHub</h1>
+        <p class="scenario-line">Driving licence lookup &middot; regular expression denial of service</p>
+
+        <ol class="sop" aria-label="Progress through the case">
+          <li data-step="detect">detect<small>Run an attack</small></li>
+          <li data-step="analyze">analyze<small>Read the line</small></li>
+          <li data-step="fix">fix<small>Switch to Fixed</small></li>
+          <li data-step="retest">retest<small>Same attack, blocked</small></li>
+        </ol>
+
+        <!-- 1 -->
+        <section class="sec" id="sec-what">
+          <h2>What it is</h2>
+          <p>ReDoS abuses a regular expression that can match the same text in many different ways. When a match fails, the engine tries every way before giving up, so one short input can keep the CPU busy for seconds or minutes. It is an availability bug in input validation, tracked as CWE-1333.</p>
+        </section>
+
+        <!-- 2 -->
+        <section class="sec" id="sec-line">
+          <h2>The line</h2>
+          <div id="code-vuln"></div>
+          <p class="why"><code>([A-Z0-9]+)+</code> puts a repeat inside a repeat. With A&rsquo;s followed by <code>!</code>, the ways to split the A&rsquo;s roughly double with every extra character, and the match still fails.</p>
+        </section>
+
+        <!-- 3 -->
+        <section class="sec" id="sec-try">
+          <h2>Try it</h2>
+          <p class="try-hint"><b>3 easy steps:</b> (1) Press &ldquo;Valid licence&rdquo;: it is answered at once. (2) Press a Payload (try the big one): the server freezes and other citizens&rsquo; lookups wait. The lab stops it by itself after 20 seconds. (3) Switch to <b>Fixed</b> and press the same Payload: it is answered at once.</p>
+
+          <div class="payloads" role="group" aria-label="Payloads">
+            <button type="button" class="payload control" id="btn-valid">
+              <strong>Valid licence</strong>
+              <small>AB123456</small>
+            </button>
+            <button type="button" class="payload" id="btn-p28">
+              <strong>Payload 1: small</strong>
+              <small>28 A&rsquo;s then "!"</small>
+            </button>
+            <button type="button" class="payload" id="btn-p32">
+              <strong>Payload 2: big</strong>
+              <small>32 A&rsquo;s then "!"</small>
+            </button>
+          </div>
+
+          <div class="monitor">
+            <div class="monitor-bar">
+              <span><span class="led" aria-hidden="true"></span>citizenhub.local (simulation)</span>
+              <div class="mode-switch" data-mode-switch role="group" aria-label="Version of the lookup">
+                <button type="button" data-mode="vulnerable" aria-pressed="true">Vulnerable</button>
+                <button type="button" data-mode="fixed" aria-pressed="false">Fixed</button>
+              </div>
+            </div>
+
+            <div class="screen skin-gov">
+              <div class="site-bar">
+                <span class="seal" aria-hidden="true"></span>
+                <div class="site-title"><strong>CitizenHub</strong><span>Driving licence lookup</span></div>
+                <span class="sim-badge">Simulation</span>
+              </div>
+              <div class="screen-body">
+                <form id="lookup-form" autocomplete="off">
+                  <label class="lookup-label" for="lic">Licence number (6 to 12 capital letters or digits)</label>
+                  <div class="lookup-row">
+                    <input class="gov-input" id="lic" name="lic" type="text" placeholder="AB123456" spellcheck="false">
+                    <button class="gov-btn" type="submit">Check</button>
+                  </div>
+                </form>
+                <div id="lookup-result" class="lookup-result" aria-live="polite">Enter a licence number, or press a payload above.</div>
+
+                <div class="clock" id="clock-box">
+                  <span class="clock-label">Server busy with this request</span>
+                  <span class="clock-time" id="clock">0.00 s</span>
+                  <button type="button" class="gov-btn stop" id="stop" hidden>Stop</button>
+                </div>
+
+                <div class="lanes-title">Other citizens&rsquo; lookups (one every 0.4 s)</div>
+                <div class="lanes" id="lanes" aria-hidden="true"></div>
+                <div class="legend" aria-hidden="true">
+                  <span><i style="background:#22c55e"></i>answered fast</span>
+                  <span><i style="background:#f59e0b"></i>waiting</span>
+                  <span><i style="background:#dc2626"></i>stuck</span>
+                  <span><i style="background:#7f1d1d"></i>dropped</span>
+                </div>
+              </div>
+            </div>
+
+            <div id="verdict" class="verdict" aria-live="polite"></div>
+            <div class="runs-title">Attack runs</div>
+            <ul class="runs" id="runs"></ul>
+            <div id="console" class="console" role="log" aria-label="Server log"></div>
+          </div>
+        </section>
+
+        <!-- 4 -->
+        <section class="sec" id="sec-why">
+          <h2>Why it matters</h2>
+          <p>One request can stall a shared service, and everyone else waits. In 2016 a regex that trimmed whitespace took Stack Overflow offline for about 34 minutes. In 2019 a single regex in a Cloudflare firewall rule used so much CPU that a large part of its traffic failed.</p>
+        </section>
+
+        <!-- 5 -->
+        <section class="sec" id="sec-fix">
+          <h2>The fix</h2>
+          <div class="fix-bar">
+            <span>Version of the code</span>
+            <div class="mode-switch" data-mode-switch role="group" aria-label="Version of the code">
+              <button type="button" data-mode="vulnerable" aria-pressed="true">Vulnerable</button>
+              <button type="button" data-mode="fixed" aria-pressed="false">Fixed</button>
+            </div>
+          </div>
+          <div id="code-fix"></div>
+          <p class="why" id="fix-why"></p>
+          <p class="note">The regex is not the only layer: cap the input length, avoid nested repeats, and use a linear-time engine such as RE2 or a timeout for untrusted patterns.</p>
+        </section>
+
+        <!-- 6 -->
+        <section class="sec sources" id="sec-sources">
+          <h2>Sources</h2>
+          <ul>
+            <li><a href="https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS" target="_blank" rel="noopener">OWASP: Regular expression Denial of Service (ReDoS)</a></li>
+            <li><a href="https://cwe.mitre.org/data/definitions/1333.html" target="_blank" rel="noopener">MITRE CWE-1333 Inefficient Regular Expression Complexity</a></li>
+            <li><a href="https://blog.cloudflare.com/details-of-the-cloudflare-outage-on-july-2-2019/" target="_blank" rel="noopener">Cloudflare: details of the outage on July 2, 2019</a></li>
+            <li><a href="https://stackstatus.net/post/147710624694/outage-postmortem-july-20-2016" target="_blank" rel="noopener">Stack Overflow: outage postmortem, July 20, 2016</a></li>
+          </ul>
+        </section>
+      </article>
+    </div>
+  </main>
+
+  <script src="js/common.js"></script>
+  <script src="js/lab3.js"></script>
+</body>
+</html>

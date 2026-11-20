@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Case 101: Profile Dashboard, unrestricted file upload · SENTRA Incident Board</title>
+  <meta name="description" content="Interactive lab: a script renamed photo.jpg is accepted because the server only checks the file name.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%F0%9F%93%8C%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&family=Special+Elite&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-mode="vulnerable">
+  <main class="file-wrap">
+    <div class="folder">
+      <div class="folder-tab"><a href="index.html">&larr; Incident board</a></div>
+      <article class="sheet">
+        <span id="sheet-stamp" class="stamp sheet-stamp open">Open</span>
+
+        <div class="chips">
+          <span class="chip">OWASP A04:2021 Insecure Design</span>
+          <span class="chip cwe">CWE-434 Unrestricted Upload of File with Dangerous Type</span>
+        </div>
+        <h1>Case 101: Profile Dashboard</h1>
+        <p class="scenario-line">Profile photo upload &middot; unrestricted file upload</p>
+
+        <ol class="sop" aria-label="Progress through the case">
+          <li data-step="detect">detect<small>Run an attack</small></li>
+          <li data-step="analyze">analyze<small>Read the line</small></li>
+          <li data-step="fix">fix<small>Switch to Fixed</small></li>
+          <li data-step="retest">retest<small>Same attack, blocked</small></li>
+        </ol>
+
+        <section class="sec" id="sec-what">
+          <h2>What it is</h2>
+          <p>Unrestricted file upload happens when a site accepts a file without checking what it really is. This profile page decides that a file is a photo by looking only at its name, so a script renamed <code>photo.jpg</code> is accepted. OWASP lists this under A04 Insecure Design, and it maps to CWE-434.</p>
+        </section>
+
+        <section class="sec" id="sec-line">
+          <h2>The line</h2>
+          <div id="code-vuln"></div>
+          <p class="why">The check reads <code>file.name</code>, which the visitor controls. A name is a label, not a fact about what is inside the file.</p>
+        </section>
+
+        <section class="sec" id="sec-try">
+          <h2>Try it</h2>
+          <p class="try-hint"><b>3 easy steps:</b> (1) Press &ldquo;Normal photo&rdquo;: a real image is accepted. (2) Press a payload: a script disguised as a photo is accepted, then the server runs it. (3) Switch to <b>Fixed</b> and press the same payload: it is rejected. You can also choose your own file.</p>
+
+          <div class="payloads" role="group" aria-label="Payloads">
+            <button type="button" class="payload control" id="btn-control"><strong>Normal photo</strong><small>a real photo.jpg</small></button>
+            <button type="button" class="payload" id="btn-p1"><strong>Disguised script</strong><small>a script named photo.jpg</small></button>
+            <button type="button" class="payload" id="btn-p2"><strong>Another disguise</strong><small>a script named avatar.png</small></button>
+          </div>
+
+          <div class="monitor">
+            <div class="monitor-bar">
+              <span><span class="led" aria-hidden="true"></span>dashboard.local (simulation)</span>
+              <div class="mode-switch" data-mode-switch role="group" aria-label="Version of the dashboard">
+                <button type="button" data-mode="vulnerable" aria-pressed="true">Vulnerable</button>
+                <button type="button" data-mode="fixed" aria-pressed="false">Fixed</button>
+              </div>
+            </div>
+            <div class="screen skin-travel">
+              <div class="site-bar">
+                <div class="site-title"><strong>Profile Dashboard</strong><span>Profile settings</span></div>
+                <span class="sim-badge">Simulation</span>
+              </div>
+              <div class="screen-body two-col">
+                <section class="panel" aria-labelledby="up-title">
+                  <h3 id="up-title">Your profile photo <span class="lock-tag">JPG, PNG, GIF</span></h3>
+                  <label class="lookup-label" for="pick">Choose your own file (optional)</label>
+                  <input id="pick" type="file">
+                  <div id="up-status" class="lookup-result" aria-live="polite"></div>
+                </section>
+                <section class="panel" aria-labelledby="folder-title">
+                  <h3 id="folder-title">Server folder /uploads <span class="lock-tag">Public</span></h3>
+                  <ul class="bulletin" id="up-files"></ul>
+                </section>
+              </div>
+            </div>
+            <div id="verdict" class="verdict" aria-live="polite"></div>
+            <div id="console" class="console" role="log" aria-label="Server log"></div>
+          </div>
+        </section>
+
+        <section class="sec" id="sec-why">
+          <h2>Why it matters</h2>
+          <p>A script that runs on the server gives the attacker a shell with the web server&rsquo;s permissions, enough to read data or hide a backdoor. In 2020 attackers abused an upload flaw in the File Manager plugin for WordPress (CVE-2020-25213) on hundreds of thousands of sites.</p>
+        </section>
+
+        <section class="sec" id="sec-fix">
+          <h2>The fix</h2>
+          <div class="fix-bar">
+            <span>Version of the code</span>
+            <div class="mode-switch" data-mode-switch role="group" aria-label="Version of the code">
+              <button type="button" data-mode="vulnerable" aria-pressed="true">Vulnerable</button>
+              <button type="button" data-mode="fixed" aria-pressed="false">Fixed</button>
+            </div>
+          </div>
+          <div id="code-fix"></div>
+          <p class="why" id="fix-why"></p>
+          <p class="note">Nothing is uploaded here: the check runs in your browser on the real bytes of the file, and the &ldquo;shell&rdquo; is only text in the log. A real site also renames the file, stores uploads outside the web root, and never lets that folder run code.</p>
+        </section>
+
+        <section class="sec sources" id="sec-sources">
+          <h2>Sources</h2>
+          <ul>
+            <li><a href="https://owasp.org/Top10/A04_2021-Insecure_Design/" target="_blank" rel="noopener">OWASP Top 10 A04:2021 Insecure Design</a></li>
+            <li><a href="https://cwe.mitre.org/data/definitions/434.html" target="_blank" rel="noopener">MITRE CWE-434 Unrestricted Upload of File with Dangerous Type</a></li>
+            <li><a href="https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html" target="_blank" rel="noopener">OWASP File Upload Cheat Sheet</a></li>
+            <li><a href="https://nvd.nist.gov/vuln/detail/CVE-2020-25213" target="_blank" rel="noopener">NVD: CVE-2020-25213 (WordPress File Manager plugin)</a></li>
+          </ul>
+        </section>
+      </article>
+    </div>
+  </main>
+
+  <script src="js/common.js"></script>
+  <script src="js/lab1.js"></script>
+</body>
+</html>

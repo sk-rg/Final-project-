@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Case 102: Wanderly Travel, supply chain attack · SENTRA Incident Board</title>
+  <meta name="description" content="Interactive lab: a compromised third-party booking library copies what visitors type. Pin the version and check its integrity hash.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%F0%9F%93%8C%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&family=Special+Elite&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-mode="vulnerable">
+  <main class="file-wrap">
+    <div class="folder">
+      <div class="folder-tab"><a href="index.html">&larr; Incident board</a></div>
+      <article class="sheet">
+        <span id="sheet-stamp" class="stamp sheet-stamp open">Open</span>
+
+        <div class="chips">
+          <span class="chip">OWASP A08:2021 Software and Data Integrity Failures</span>
+          <span class="chip cwe">CWE-829 Untrusted Control Sphere</span>
+        </div>
+        <h1>Case 102: Wanderly Travel</h1>
+        <p class="scenario-line">Booking website &middot; compromised third-party dependency</p>
+
+        <ol class="sop" aria-label="Progress through the case">
+          <li data-step="detect">detect<small>Run an attack</small></li>
+          <li data-step="analyze">analyze<small>Read the line</small></li>
+          <li data-step="fix">fix<small>Switch to Fixed</small></li>
+          <li data-step="retest">retest<small>Same attack, blocked</small></li>
+        </ol>
+
+        <section class="sec" id="sec-what">
+          <h2>What it is</h2>
+          <p>A supply chain attack hits the code you depend on instead of your own code. Wanderly&rsquo;s booking page is clean, but it loads a booking library from a public CDN, and that library gets modified to copy what visitors type. OWASP files this under A08 Software and Data Integrity Failures, with CWE-829.</p>
+        </section>
+
+        <section class="sec" id="sec-line">
+          <h2>The line</h2>
+          <div id="code-vuln"></div>
+          <p class="why"><code>@latest</code> lets whoever controls the CDN decide which code runs on your page, and with no <code>integrity</code> attribute the browser never checks it.</p>
+        </section>
+
+        <section class="sec" id="sec-try">
+          <h2>Try it</h2>
+          <p class="try-hint"><b>3 easy steps:</b> (1) Press a booking, or fill the form and press Submit: the page runs a modified library from the CDN, and everything you typed, card number included, appears in the attacker panel. (2) Switch to <b>Fixed</b>: the attacker panel is cleared. (3) Submit again: the browser refuses the modified library and nothing leaks.</p>
+
+          <div class="payloads" role="group" aria-label="Payloads">
+            <button type="button" class="payload" id="btn-b1"><strong>Tampered booking 1</strong><small>Layla books Petra</small></button>
+            <button type="button" class="payload" id="btn-b2"><strong>Tampered booking 2</strong><small>Omar books Istanbul</small></button>
+          </div>
+
+          <div class="monitor">
+            <div class="monitor-bar">
+              <span><span class="led" aria-hidden="true"></span>wanderly-booking.local (simulation)</span>
+              <div class="mode-switch" data-mode-switch role="group" aria-label="Version of the booking page">
+                <button type="button" data-mode="vulnerable" aria-pressed="true">Vulnerable</button>
+                <button type="button" data-mode="fixed" aria-pressed="false">Fixed</button>
+              </div>
+            </div>
+            <div class="screen skin-travel">
+              <div class="site-bar">
+                <span class="logo-plane" aria-hidden="true">&#9992;</span>
+                <div class="site-title"><strong>Wanderly Travel</strong><span>Booking form</span></div>
+                <span class="sim-badge">Simulation: fake data only</span>
+              </div>
+              <div class="screen-body two-col">
+                <section class="panel" aria-labelledby="form-title">
+                  <h3 id="form-title">Book a trip</h3>
+                  <form id="book-form" class="booking-form" autocomplete="off">
+                    <label>Full name <input class="gov-input" id="f-name" placeholder="Layla Haddad"></label>
+                    <label>Email <input class="gov-input" id="f-email" placeholder="layla.test@example.com"></label>
+                    <label>Booking reference <input class="gov-input" id="f-ref" placeholder="GH-1001"></label>
+                    <label>Destination <input class="gov-input" id="f-dest" placeholder="Petra, Jordan"></label>
+                    <label>Credit card number (fake test number) <input class="gov-input" id="f-card" placeholder="4111 1111 1111 1111" inputmode="numeric" maxlength="19" autocomplete="off"></label>
+                    <button class="gov-btn" type="submit">Submit booking</button>
+                  </form>
+                  <div id="result" class="lookup-result" aria-live="polite"></div>
+                  <div class="dep-strip" id="dep-strip">
+                    <span>booking-lib</span>
+                    <span id="dep-version"></span>
+                    <span id="dep-chip" class="dep-chip unchecked"></span>
+                  </div>
+                </section>
+                <section class="panel" aria-labelledby="atk-title">
+                  <h3 id="atk-title">Simulated attacker panel <span class="lock-tag">Nothing leaves your browser</span></h3>
+                  <ul class="bulletin" id="stolen"></ul>
+                </section>
+              </div>
+            </div>
+            <div id="verdict" class="verdict" aria-live="polite"></div>
+            <div id="console" class="console" role="log" aria-label="Network log"></div>
+          </div>
+        </section>
+
+        <section class="sec" id="sec-why">
+          <h2>Why it matters</h2>
+          <p>Customer details are exposed, privacy is violated, and leaked data can be used for phishing. In 2024 the polyfill.io domain was sold, and the new owner began serving malicious JavaScript to more than 100,000 websites that still embedded it. Those sites had changed nothing themselves.</p>
+        </section>
+
+        <section class="sec" id="sec-fix">
+          <h2>The fix</h2>
+          <div class="fix-bar">
+            <span>Version of the code</span>
+            <div class="mode-switch" data-mode-switch role="group" aria-label="Version of the code">
+              <button type="button" data-mode="vulnerable" aria-pressed="true">Vulnerable</button>
+              <button type="button" data-mode="fixed" aria-pressed="false">Fixed</button>
+            </div>
+          </div>
+          <div id="code-fix"></div>
+          <p class="why" id="fix-why"></p>
+          <p class="note">In this lab the hash check runs in JavaScript so you can watch it. On a real site you only add the <code>integrity</code> attribute and the browser does the check for you.</p>
+        </section>
+
+        <section class="sec sources" id="sec-sources">
+          <h2>Sources</h2>
+          <ul>
+            <li><a href="https://owasp.org/Top10/A08_2021-Software_and_Data_Integrity_Failures/" target="_blank" rel="noopener">OWASP Top 10 A08:2021 Software and Data Integrity Failures</a></li>
+            <li><a href="https://cwe.mitre.org/data/definitions/829.html" target="_blank" rel="noopener">MITRE CWE-829 Inclusion of Functionality from Untrusted Control Sphere</a></li>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity" target="_blank" rel="noopener">MDN: Subresource Integrity</a></li>
+            <li><a href="https://www.bleepingcomputer.com/news/security/polyfillio-javascript-supply-chain-attack-impacts-over-100K-sites/" target="_blank" rel="noopener">BleepingComputer: polyfill.io supply chain attack</a></li>
+          </ul>
+        </section>
+      </article>
+    </div>
+  </main>
+
+  <script src="js/common.js"></script>
+  <script src="lib/booking-lib.js"></script>
+  <script src="lib/booking-lib.tampered.js"></script>
+  <script src="js/lab2.js"></script>
+</body>
+</html>
